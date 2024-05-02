@@ -1,0 +1,788 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Alchemix room</title>
+    <meta name="description" content="Basic Example — Networked-Aframe" />
+
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.slim.js"></script>
+    <script src="/easyrtc/easyrtc.js"></script>
+    <script src="https://unpkg.com/networked-aframe@^0.9.0/dist/networked-aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-proxy-event-component/dist/aframe-proxy-event-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <script src="/js/joystick.min.js"></script>
+    <script>
+      // see issue https://github.com/networked-aframe/networked-aframe/issues/267
+      NAF.schemas.getComponentsOriginal = NAF.schemas.getComponents;
+      NAF.schemas.getComponents = (template) => {
+        if (!NAF.schemas.hasTemplate("#avatar-template")) {
+          NAF.schemas.add({
+            template: "#avatar-template",
+            components: [
+              "position",
+              "rotation",
+              {
+                selector: ".head",
+                component: "material",
+                property: "color",
+              },
+            ],
+          });
+        }
+        const components = NAF.schemas.getComponentsOriginal(template);
+        return components;
+      };
+    </script>
+    <script src="https://unpkg.com/aframe-randomizer-components@^3.0.1/dist/aframe-randomizer-components.min.js"></script>
+    <script src="/js/spawn-in-circle.component.js"></script>
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+  </head>
+  <body>
+    <a-scene
+      joystick
+      networked-scene="
+      room: basic-audio;
+      debug: true;
+      adapter: easyrtc;
+      audio: true;
+    "
+    >
+      <!-- loading assets-->
+      <a-assets>
+        <a-img
+          id="paint"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/wall.png?v=1711066320120"
+        />
+        <a-img
+          id="paintnm"
+          src="https://cdn.glitch.global/87012bd5-a4bf-45cf-80ee-67e5ced56e30/NormalMap%20plaster.jpg?v=1649701106879"
+        />
+        <a-img
+          id="marble"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/tiles.png?v=1711066310362"
+        />
+        <a-img
+          id="marblenm"
+          src="https://cdn.glitch.global/87012bd5-a4bf-45cf-80ee-67e5ced56e30/NormalMap.jpg?v=1649701104595"
+        />
+        <a-asset-item
+          id="plastic_bench"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/plastic_bench.glb?v=1711202931515"
+        ></a-asset-item>
+        <a-asset-item
+          id="book_shelf"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/book_shelf.glb?v=1711197425774"
+        ></a-asset-item>
+        <a-asset-item
+          id="chair"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/chair.glb?v=1711191545892"
+        ></a-asset-item>
+        <a-asset-item
+          id="books"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/books.glb?v=1711199276507"
+        ></a-asset-item>
+        <a-asset-item
+          id="glassware"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/chemistry_glassware.glb?v=1711199932226"
+        ></a-asset-item>
+        <a-asset-item
+          id="shelf"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/shelf.glb?v=1711106544094"
+        ></a-asset-item>
+        <a-asset-item
+          id="desk"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/chemistry_table.glb?v=1711190918057"
+        ></a-asset-item>
+        <a-asset-item
+          id="locker"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/locker.glb?v=1711200839385"
+        ></a-asset-item>
+        <a-asset-item
+          id="light_bulb"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/light_bulb.glb?v=1711204044823"
+        ></a-asset-item>
+        <a-asset-item
+          id="chemistry_set"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/chemistry_set.glb?v=1711202530635"
+        ></a-asset-item>
+        <a-asset-item
+          id="periodic_table"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/periodic_table.glb?v=1711070360120"
+        ></a-asset-item>
+        <img
+          id="shelf1"
+          src="https://cdn.glitch.global/b308fdbe-a46f-41d7-8fc7-56b3a95f6c01/thumbnails_TexturesCom_Metal_Corroded_1K_albedo.jpg?v=1649277483440"
+        />
+        <img
+          id="shelf1-normal"
+          src="https://cdn.glitch.global/b308fdbe-a46f-41d7-8fc7-56b3a95f6c01/thumbnails_TexturesCom_Metal_Corroded_1K_normal.jpg?v=1649277484229"
+        />
+        <a-asset-item
+          id="plane"
+          src="https://cdn.glitch.global/b308fdbe-a46f-41d7-8fc7-56b3a95f6c01/final_plane2.gltf?v=1649276542314"
+        ></a-asset-item>
+        <a-img
+          id="steel"
+          src="https://cdn.glitch.global/640b3d0b-0652-40d3-bece-30fc1eb4e70e/Steel_door.png?v=1713262661268"
+        />
+        <a-img
+          id="copper"
+          src="https://cdn.glitch.global/87012bd5-a4bf-45cf-80ee-67e5ced56e30/TexturesCom_Metal_CopperPolished_512_albedo.jpg?v=1649768975884"
+        />
+        <a-img
+          id="metal"
+          src="https://cdn.glitch.global/87012bd5-a4bf-45cf-80ee-67e5ced56e30/TexturesCom_Metal_Corroded_512_roughness.jpg?v=1649768975814"
+        />
+        <a-img
+          id="woodnm1"
+          src="https://cdn.glitch.global/87012bd5-a4bf-45cf-80ee-67e5ced56e30/TexturesCom_Wood_RusticVeneer_512_normal.jpg?v=1649769658254"
+        />
+
+        <!--insert some ss of the 3 environments-->
+        <img
+          id="room2"
+          src="https://cdn.glitch.global/ae4d2b4f-df62-44a5-9f7c-ae1a1fac1fb6/room2.jpg?v=1710797753676"
+        />
+        <img
+          id="room1"
+          src="https://cdn.glitch.global/ae4d2b4f-df62-44a5-9f7c-ae1a1fac1fb6/room1.jpg?v=1710797371177"
+        />
+        <img
+          id="room3"
+          src="https://cdn.glitch.global/ae4d2b4f-df62-44a5-9f7c-ae1a1fac1fb6/room3.jpg?v=1710798694324"
+        />
+        <img
+          id="Lobby"
+          src="https://cdn.glitch.global/87012bd5-a4bf-45cf-80ee-67e5ced56e30/screenshot-theravr%20therapy%20room-1650178327951-min.png?v=1650178800592"
+        />
+
+        <!-- Templates -->
+
+        <!-- Avatar -->
+        <template id="avatar-template">
+          <a-entity class="avatar" networked-audio-source>
+            <a-sphere class="head" scale="0.3 0.3 0.3"></a-sphere>
+
+            <a-entity class="face" position="0 0.05 0">
+              <a-sphere
+                class="eye"
+                color="#efefef"
+                position="-0.10514 0 -0.224"
+                scale="0.08 0.08 0.08"
+              >
+                <a-sphere
+                  class="pupil"
+                  color="#000"
+                  position="0 0 -0.874"
+                  scale="0.2 0.2 0.2"
+                ></a-sphere>
+              </a-sphere>
+
+              <a-sphere
+                class="eye"
+                color="#efefef"
+                position="0.10514 0 -0.224"
+                scale="0.08 0.08 0.08"
+              >
+                <a-sphere
+                  class="pupil"
+                  color="#000"
+                  position="0 0 -.874"
+                  scale="0.2 0.2 0.2"
+                ></a-sphere>
+              </a-sphere>
+            </a-entity>
+
+            <a-cone
+              class="body"
+              geometry="segmentsHeight: 8; segmentsRadial: 8"
+              rotation="180 0 0"
+              position="0 -0.72 0"
+              scale="0.35 0.8 0.35"
+            >
+              <a-sphere
+                class="arm"
+                scale="0.23 0.37 0.24"
+                position="-1.094 -0.111 0"
+                rotation="0 0 14"
+              ></a-sphere>
+
+              <a-sphere
+                class="arm"
+                scale="0.23 0.37 0.24"
+                position="1.094 -0.111 0"
+                rotation="0 0 -14"
+              ></a-sphere>
+            </a-cone>
+          </a-entity>
+        </template>
+      </a-assets>
+
+      <!--SCENE-->
+      <!--player entity-->
+      <a-entity
+        id="player"
+        camera
+        networked="template:#avatar-template;attachTemplateToLocal:false;"
+        position="0 1.6 0"
+        spawn-in-circle="radius:2"
+        wasd-controls
+        look-controls
+      >
+        <a-entity
+          cursor
+          position="0 0 -1"
+          geometry="primitive: sphere; radius: 0.008;"
+          material="color: beige; shader:flat; opacity:0.8"
+          animation__click="property:scale;
+                                    startEvents: click;
+                                    easing: ;
+                                    dur: 150;
+                                    from: 0.1 0.1 0.1; to: 1 1 1;"
+          animation__fusing="property: scale; 
+                                     startEvents: fusing; 
+                                     easing: easeInCubic; 
+                                     dur: 1500; 
+                                     from: 1 1 1; to: 3 3 3"
+        >
+        </a-entity>
+        <a-sphere class="head" visible="false" random-color></a-sphere>
+      </a-entity>
+
+      <!-- environment  -->
+      <a-entity
+        environment="preset: starry; dressingAmount: 150; playArea: 1.5; lighting: none; skyType: atmosphere;"
+      >
+        <a-entity
+          light="groundColor: #5eb757; intensity: 0.42; type: ambient;"
+        ></a-entity>
+
+        <a-light
+          type="directional"
+          position="0 6.8 0"
+          rotation="-90 0 0"
+          target="#directionaltarget"
+          intensity="0.5"
+        >
+          <a-entity id="directionaltarget" position="0 0 -1"></a-entity>
+        </a-light>
+      </a-entity>
+
+      <! models >
+      <!room>
+
+      <!--links full-->
+      <!--link 1 room2-->
+      <a-entity position="-1.200 0 0">
+        <a-entity
+          position="-4.013 1.7 -8.194"
+          event-set__mouseenter="scale: 1.15 1.15 1"
+          event-set__mouseleave="scale: 1 1 1"
+        >
+          <!--border-->
+          <a-entity
+            id="border"
+            geometry="primitive: plane"
+            scale="1.25 0.85 1"
+            material="color:#ce8d8d"
+            event-set__mouseenter="material.color:#e60000;"
+            event-set__mouseleave="material.color:#ce8d8d"
+          ></a-entity>
+          <!--link-->
+          <a-entity
+            id="linkToRoom2"
+            geometry="primitive: plane"
+            link="href: room2.html; image: room2"
+            material="shader: portal; side: double; pano: #room2"
+            position="0 0 0.01"
+            scale="1.2 .8 1"
+            event-set__mouseenter="material.color:#e60000; _target:#border"
+            event-set__mouseleave="material.color:#ce8d8d; _target:#border"
+          >
+          </a-entity>
+          <a-entity
+            position="0 -0.55 0"
+            text="align: center; color: #a8a8a8; font: roboto; value: Room 2; width: 5"
+            scale="0.75 0.75 1"
+          >
+            <a-entity
+              id="textborder"
+              geometry="primitive: plane; height:0.24; width:0.8;"
+              scale=""
+              material="color:#000000"
+            ></a-entity>
+          </a-entity>
+        </a-entity>
+
+        <!--link 2 room1-->
+        <a-entity
+          position="-6.184 1.7 -8.194"
+          event-set__mouseenter="scale: 1.15 1.15 1"
+          event-set__mouseleave="scale: 1 1 1"
+        >
+          <!--border-->
+          <a-entity
+            id="border2"
+            geometry="primitive: plane"
+            scale="1.25 0.85 1"
+            material="color:#573905"
+            event-set__mouseenter="material.color:#24CAFF;"
+            event-set__mouseleave="material.color:#573905"
+          ></a-entity>
+          <!--link-->
+          <a-entity
+            id="linkToRoom1"
+            geometry="primitive: plane"
+            link="href: room1.html; image: #room1"
+            material="shader: portal; side: double; pano: #room1"
+            position="0 0 0.01"
+            scale="1.2 .8 1"
+            event-set__mouseenter="material.color:#24CAFF; _target:#border2"
+            event-set__mouseleave="material.color:#573905; _target:#border2"
+          >
+          </a-entity>
+          <a-entity
+            position="0 -0.55 0"
+            text="align: center; color: #a8a8a8; font: roboto; value: Room 1; width: 5"
+            scale="0.75 0.75 1"
+          >
+            <a-entity
+              id="textborder2"
+              geometry="primitive: plane; height:0.2; width:0.8;"
+              position="0.01 0 0"
+              material="color:#000000"
+            ></a-entity>
+          </a-entity>
+        </a-entity>
+
+        <!--link 3 room3-->
+        <a-entity
+          position="-1.842 1.7 -8.194"
+          event-set__mouseenter="scale: 1.15 1.15 1"
+          event-set__mouseleave="scale: 1 1 1"
+        >
+          <!--border-->
+          <a-entity
+            id="border3"
+            geometry="primitive: plane"
+            scale="1.25 0.85 1"
+            material="color:#FF69B4"
+            event-set__mouseenter="material.color:#00fbff;"
+            event-set__mouseleave="material.color:#FF69B4"
+          ></a-entity>
+          <!--link-->
+          <a-entity
+            id="linkToroom3"
+            geometry="primitive: plane"
+            link="href: room3.html; image: #room3"
+            material="shader: portal; side: double; pano: #room3"
+            position="0 0 0.01"
+            scale="1.2 .8 1"
+            event-set__mouseenter="material.color:#00fbff; _target:#border3"
+            event-set__mouseleave="material.color:#FF69B4; _target:#border3"
+          >
+          </a-entity>
+          <a-entity
+            position="0 -0.55 0"
+            text="align: center; color: #a8a8a8; font: roboto; value: Room 3; width: 5"
+            scale="0.75 0.75 1"
+          >
+            <a-entity
+              id="textborder3"
+              geometry="primitive: plane; height:0.22; width:0.8;"
+              position="0 -0.02 0"
+              material="color:#000000"
+            ></a-entity>
+          </a-entity>
+        </a-entity>
+      </a-entity>
+
+      <!-- main -->
+      <a-entity position="0 0 5.8">
+        <!--HOUSE-->
+        <!-- Structure -->
+        <a-entity position="0 0.02 0" scale="0.8 0.8 0.8"
+          >z
+          <!--walls-->
+          <a-box
+            position="3 2.5 -10"
+            depth="16"
+            width="0.5"
+            height="5"
+            material="src:#paint; repeat: 4 4; normalMap:#paintnm; normalTextureRepeat: 4 4;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-12 2.5 -4.5"
+            depth="5"
+            width="0.5"
+            height="5"
+            material="src:#paint; repeat: 4 4; normalMap:#paintnm; normalTextureRepeat: 4 4;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-12 2.5 -16.5"
+            depth="3"
+            width="0.5"
+            height="5"
+            material="src:#paint; repeat: 4 4; normalMap:#paintnm; normalTextureRepeat: 4 4;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-12 0.625 -11"
+            depth="8"
+            width="0.5"
+            height="1.25"
+            material="src:#paint; repeat: 7 1; normalMap:#paintnm; normalTextureRepeat: 7 1;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-12 4.375 -11"
+            depth="8"
+            width="0.5"
+            height="1.25"
+            material="src:#paint; repeat: 7 1; normalMap:#paintnm; normalTextureRepeat: 7 1;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-4.5 2.5 -17.75"
+            depth="0.5"
+            width="14.5"
+            height="5"
+            material="src:#paint; repeat: 4 4; normalMap:#paintnm; normalTextureRepeat: 4 4;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-6.25 2.5 -2.25"
+            depth="0.5"
+            width="11"
+            height="5"
+            material="src:#paint; repeat: 4 4; normalMap:#paintnm; normalTextureRepeat: 4 4;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="2 2.5 -2.25"
+            depth="0.5"
+            width="1.5"
+            height="5"
+            material="src:#paint; repeat: 1 3; normalMap:#paintnm; normalTextureRepeat: 1 3;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="0.25 4.25 -2.25"
+            depth="0.5"
+            width="2"
+            height="1.5"
+            material="src:#paint; repeat: 1 1; normalMap:#paintnm; normalTextureRepeat: 1 1;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+          <a-box
+            position="-4.5 5.25 -10"
+            width="15.5"
+            depth="16"
+            height="0.5"
+            material="src:#paint; repeat: 6 6; normalMap:#paintnm; normalTextureRepeat: 6 6;"
+            shadow="cast:true; receive:true"
+          ></a-box>
+
+          <!-- Door -->
+          <a-entity
+            opacity="0"
+            position="-0.75 1.75 -2.05"
+            height="3.5"
+            width="4"
+            depth="0.8"
+            animation__open="startEvents: click;
+                           property: rotation;
+                           from: 0 0 0;
+                           to: 0 -90 0;
+                           dur: 1000;
+                           easing: easeInOutCirc;"
+            animation__close="startEvents:animationcomplete__open;
+                            delay:4000;
+                            property: rotation;
+                            from: 0 -90 0;
+                            to: 0 0 0;
+                            dur: 1000;
+                            easing: easeInOutCirc;"
+          >
+            <a-box
+              material="color: white; src: #steel; repeat: 1 7; normalMap: #woodnm1; normalTextureRepeat: 1 7"
+              height="3.5"
+              width="2"
+              depth="0.1"
+              position="1 0 0"
+              shadow="cast:true; receive:true"
+            >
+              <a-sphere
+                position="0.75 0 0.14"
+                radius="0.06"
+                src="#metal"
+                shadow="cast:true; receive:true"
+              ></a-sphere>
+              <a-sphere
+                position="0.75 0 -0.14"
+                radius="0.06"
+                src="#metal"
+                shadow="cast:true; receive:true"
+              ></a-sphere>
+              <a-cylinder
+                position="0.75 0 0"
+                rotation="90 0 0"
+                radius="0.02"
+                height="0.25"
+                src="#metal"
+                shadow="cast:true; receive:true"
+              ></a-cylinder>
+              <a-cylinder
+                position="-1 1.30202 -0.05"
+                radius="0.04"
+                height="0.2"
+                src="#copper"
+                shadow="cast:true; receive:true"
+              ></a-cylinder>
+              <a-cylinder
+                position="-1 -1.30202 -0.05"
+                radius="0.04"
+                height="0.2"
+                src="#copper"
+                shadow="cast:true; receive:true"
+              ></a-cylinder>
+            </a-box>
+          </a-entity>
+
+          <!--floor-->
+          <a-plane
+            position="-4.5 0 -10"
+            rotation="-90 0 0"
+            width="15.5"
+            height="16"
+            src="#marble"
+            normal-map="#marblenm"
+            repeat="3 3 3"
+            shadow="cast:true; receive:true"
+          ></a-plane>
+          <!--window-->
+          <a-box
+            position="-12 2.5 -11"
+            depth="8"
+            height="2.5"
+            material="opacity: 0.5; color: #8ed0e6"
+            geometry="width: 0.1"
+          ></a-box>
+        </a-entity>
+
+        <!-- Furniture -->
+        <a-entity
+          gltf-model="#book_shelf"
+          position="0.5 0 -14"
+          rotation="0 0 0"
+          scale="3.5 3.5 3.5"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#chair"
+          position="-7.7 1 -8"
+          rotation="0 -70 0"
+          scale="0.5 0.5 0.5"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#chair"
+          position="-7.7 1 -9.5"
+          rotation="0 70 0"
+          scale="0.5 0.5 0.5"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#plastic_bench"
+          position="-1 -16.9 -9.8"
+          rotation="0 0 0"
+          scale="1 1 1"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#desk"
+          position="-26.5 2 -9"
+          rotation="0 0 0"
+          scale="1 1 1"
+          shadow="cast:true; receive:true"
+        >
+          <!--welcome text-->
+          <a-entity
+            text__welcome="align: center; baseline: bottom; color: #000000; font: exo2semibold; value: Welcome to Alchemix; width: 9.87; side: double"
+            look-at="#player"
+            position="19.22 1 0"
+            rotation="0 180 0"
+            shadow="cast:  false;  receive:  false"
+          ></a-entity>
+
+          <!--instructions-->
+          <a-entity
+            geometry="primitive: plane; height: 1.2; width: 1.69"
+            rotation="0 180 0"
+            material="color: green; side: double"
+            position="19.22 0 0"
+            scale="1 1 0.05"
+            look-at="#player"
+          >
+            <a-entity
+              position="0 0.45168 0.01693"
+              text="align: center; color: #e0d8e8; value: INSTRUCTIONS; width: 5.07"
+            ></a-entity>
+            <a-entity
+              position="0.00012 0.19693 0.02043"
+              text="align: center; color: #e0d8e8; value: camera: move with your phone
+                                                                                                         movement: use the joystick; width: 2.31"
+            ></a-entity>
+            <a-entity
+              position="0 -0.08307 0.03636"
+              text="align: center; color: #e0d8e8; value: Click on the portal on the wall                                                       to move into the right class; width: 2.31; wrapCount: 45.35"
+            ></a-entity>
+            <a-entity
+              position="0 -0.37351 0.09321"
+              text="align: center; color: #e0d8e8; value: Alchemix: Ditch the Textbook                                                     Step into the Mix; width: 2.6"
+            ></a-entity>
+          </a-entity>
+        </a-entity>
+
+        <a-entity
+          gltf-model="#shelf"
+          position="-8 2 -2.5"
+          scale="1 1 1"
+          rotation="0 180 0"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#shelf"
+          position="-2 2 -2.5"
+          scale="1 1 1"
+          rotation="0 180 0"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#books"
+          position="-1.13 1.44 -14"
+          scale="0.05 0.05 0.05"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#glassware"
+          position="-0.05 0.9 -13.3"
+          scale="0.025 0.025 0.025"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <a-entity
+          gltf-model="#locker"
+          position="1.75 0 -3"
+          scale="1.5 1.5 1.5"
+          rotation="0 -90 0"
+          shadow="cast:true; receive:false"
+        ></a-entity>
+        <a-entity
+          gltf-model="#locker"
+          position="1.75 0 -4"
+          scale="1.5 1.5 1.5"
+          rotation="0 -90 0"
+          shadow="cast:true; receive:false"
+        ></a-entity>
+        <a-entity
+          gltf-model="#periodic_table"
+          position="2.5 2 -9"
+          scale="8 5 5"
+          rotation="0 275 0"
+          shadow="cast:true; receive:false"
+        ></a-entity>
+        <a-entity
+          gltf-model="#chemistry_set"
+          position="-8.5 1.25 -9.7"
+          scale="0.003 0.003 0.003"
+          rotation="0 180 0"
+          shadow="cast:true; receive:true"
+        ></a-entity>
+        <!--lights-->
+
+        <a-entity
+          gltf-model="#light_bulb"
+          position="-8 3.5 -4"
+          scale="0.005 0.005 0.005"
+          shadow="cast:true; receive:true"
+        >
+          <a-entity
+            position="0 0.275 0"
+            light="color: #e3d787; intensity: 0.2; type: point; castShadow:true"
+          ></a-entity>
+        </a-entity>
+        <a-entity
+          gltf-model="#light_bulb"
+          position="-8 3.5 -12"
+          scale="0.005 0.005 0.005"
+          shadow="cast:true; receive:true"
+        >
+          <a-entity
+            position="0 0.275 0"
+            light="color: #e3d787; intensity: 0.2; type: point; castShadow:true"
+          ></a-entity>
+        </a-entity>
+        <a-entity
+          gltf-model="#light_bulb"
+          position="0 3.5 -4"
+          scale="0.005 0.005 0.005"
+          shadow="cast:true; receive:true"
+        >
+          <a-entity
+            position="0 0.275 0"
+            light="color: #e3d787; intensity: 0.2; type: point; castShadow:true"
+          ></a-entity>
+        </a-entity>
+        <a-entity
+          gltf-model="#light_bulb"
+          position="0 3.5 -12"
+          scale="0.005 0.005 0.005"
+          shadow="cast:true; receive:true"
+        >
+          <a-entity
+            position="0 0.275 0"
+            light="color: #e3d787; intensity: 0.2; type: point; castShadow:true"
+          ></a-entity>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+
+    <div class="actions">
+      <button id="mic-btn" type="button" class="button">
+        Press to Mute Mic
+      </button>
+    </div>
+
+    <script>
+      // Mic status
+      let micEnabled = false;
+      // Mic button ele
+      const micBtnEle = document.getElementById("mic-btn");
+      // On mobile remove elements that are resource heavy
+      const isMobile = AFRAME.utils.device.isMobile();
+
+      if (isMobile) {
+        const particles = document.getElementById("particles");
+        particles.parentNode.removeChild(particles);
+      }
+
+      // Called by Networked-Aframe when connected to server
+      function onConnect() {
+        console.log("onConnect", new Date());
+
+        // Handle mic button click (Mute and Unmute)
+        micBtnEle.addEventListener("click", function () {
+          NAF.connection.adapter.enableMicrophone(!micEnabled);
+          micEnabled = !micEnabled;
+          micBtnEle.textContent = micEnabled
+            ? "Press to Mute Mic"
+            : "Press to Unmute Mic";
+        });
+      }
+    </script>
+  </body>
+</html>
